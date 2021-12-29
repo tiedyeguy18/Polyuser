@@ -1,23 +1,13 @@
-let socket = new WebSocket("ws://127.0.0.1:8999");
-
-socket.onopen = function(e) {
-  console.log("[open] Connection established");
-  console.log("Sending to server");
-  socket.send("My name is Spenser`");
-};
-
-socket.onmessage = function(event) {
-  console.log(`[message] Data received from server: ${event.data}`);
-};
-
-socket.onclose = function(event) {
-  if (event.wasClean) {
-    console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
-  } else {
-    console.log('[close] Connection died');
+function initialize(): void {
+  const form = <HTMLFormElement> document.querySelector("#room_login_form")
+  form.onsubmit = () => {
+    const formData = new FormData(form);
+    const roomId  = formData.get('room') as string;
+    window.location.href = "polyuser.html?room=" + roomId
+    return false;
   }
-};
+}
 
-socket.onerror = function(error) {
-    console.log(error)
-};
+document.addEventListener("DOMContentLoaded", function() {
+  initialize()
+}, false);

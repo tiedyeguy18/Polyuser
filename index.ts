@@ -3,7 +3,7 @@ import * as WebSocket from 'ws';
 interface Client {
   getName(): string;
 
-  copy(): Client;
+  getID(): number;
 }
 
 interface Room {
@@ -24,13 +24,32 @@ interface Room {
 interface Server {
   handleConnection(ws: WebSocket): void;
 
-  // takes the client creating the room, the owner
-  createRoom(client: Client): void;
+  createRoom(roomID: number, owner: Client): void;
 
   // returns whether room was present (and therefore removed)
   removeRoom(roomID: number): boolean;
 
+  getRoom(id: number): Room | undefined;
+
   getRooms(): Room[];
+}
+
+class ClientImpl implements Client {
+  private readonly id: number;
+  private readonly name: string;
+
+  constructor(id: number, name: string) {
+    this.id = id;
+    this.name = name;
+  }
+
+  getID(): number {
+    return this.id;
+  }
+
+  getName(): string {
+    return this.name;
+  }
 }
 
 class RoomImpl implements Room {
@@ -54,7 +73,7 @@ class RoomImpl implements Room {
   }
 
   getClients(): Client[] {
-    return this.clients.map(c => c.copy());
+    return this.clients.map(s => s);
   }
 
   getID(): number {
@@ -83,12 +102,11 @@ class RoomImpl implements Room {
 
 class ServerImpl implements Server {
   private rooms: Room[] = [];
-  private highestRoomID: number = 0;
+  private highestClientID: number = 0;
 
-  createRoom(client: Client): void {
+  createRoom(roomID: number, client: Client): void {
     // add a new room with only one client (as the owner)
-    this.rooms.push(new RoomImpl(this.highestRoomID, [client]));
-    this.highestRoomID++;
+    this.rooms.push(new RoomImpl(roomID, [client]));
   }
 
   removeRoom(roomID: number): boolean {
@@ -102,18 +120,41 @@ class ServerImpl implements Server {
     return contains;
   }
 
+  getRoom(id: number): Room | undefined {
+    return this.rooms.filter(r => r.getID() == id).pop();
+  }
+
   getRooms(): Room[] {
     return this.rooms.map(r => r.copy());
   }
 
   handleConnection(ws: WebSocket): void {
+    ws.on('message', this.handleMessage);
+  }
 
-    ws.on('message', (message: string) => {
-      console.log('received: %s', message);
-      ws.send(`Hello, you sent -> ${message}`);
-    });
+  private handleMessage(message: string) {
+    const messageJSON: any = JSON.parse(message);
 
-    ws.send('Hi there, I am a WebSocket server');
+    switch (messageJSON.type) {
+      case "join":
+        this.handleJoinMessage(messageJSON);
+        break;
+    }
+  }
+
+  private handleJoinMessage(messageJSON: any) {
+    if (!(messageJSON.roomID && messageJSON.clientName)) {
+      throw new Error(`Invalid message: "${messageJSON}"`);
+    }
+    const joinedRoom: Room | undefined = this.getRoom(messageJSON.roomID);
+    const client: Client = new ClientImpl(this.highestClientID, messageJSON.clientName);
+
+    if (joinedRoom) {
+      joinedRoom.addClient(client);
+    } else {
+      this.createRoom(messageJSON.roomID, client);
+    }
+    this.highestClientID++;
   }
 }
 

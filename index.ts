@@ -103,6 +103,11 @@ class RoomImpl implements Room {
 class ServerImpl implements Server {
   private rooms: Room[] = [];
   private highestClientID: number = 0;
+  private readonly ws: WebSocket.Server;
+
+  constructor(ws: WebSocket.Server) {
+    this.ws = ws;
+  }
 
   createRoom(roomID: number, client: Client): void {
     // add a new room with only one client (as the owner)
@@ -129,7 +134,7 @@ class ServerImpl implements Server {
   }
 
   handleConnection(ws: WebSocket): void {
-    ws.on('message', this.handleMessage);
+    ws.on("message", this.handleMessage);
   }
 
   private handleMessage(message: string) {
@@ -149,6 +154,7 @@ class ServerImpl implements Server {
     const joinedRoom: Room | undefined = this.getRoom(messageJSON.roomID);
     const client: Client = new ClientImpl(this.highestClientID, messageJSON.clientName);
 
+    console.log(this.ws.clients);
     if (joinedRoom) {
       joinedRoom.addClient(client);
     } else {
@@ -158,8 +164,8 @@ class ServerImpl implements Server {
   }
 }
 
-const server: Server = new ServerImpl();
-
 const wss = new WebSocket.Server({port: 8999});
+
+const server: Server = new ServerImpl(wss);
 
 wss.on('connection', server.handleConnection);

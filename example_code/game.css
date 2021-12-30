@@ -2,12 +2,16 @@ body {
     background-color: #111;
 }
 
-.game-container {
-    margin-top: 10%;
+#game-container {
     left: 0;
     right: 0;
     display: flex;
     justify-content: center;
+}
+
+#game-surface {
+  width: 100%;
+  border: 1em dashed darkcyan;
 }
 
 /*
@@ -15,6 +19,7 @@ body {
 */
 
 .lds-circle {
+  margin-top: 10%;
   display: inline-block;
   transform: translateZ(1px);
 }

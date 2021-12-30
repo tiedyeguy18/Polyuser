@@ -1,2 +1,2 @@
 # Polyuser
-Generic peer-to-peer multiplayer JS framework.
+Generic server-client multiplayer JS framework.

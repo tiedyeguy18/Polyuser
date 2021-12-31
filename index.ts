@@ -167,6 +167,7 @@ class ServerImpl implements Server {
 }
 
 const wss = new WebSocket.Server({port: 8999});
+console.log(wss);
 
 const server: Server = new ServerImpl(wss);
 

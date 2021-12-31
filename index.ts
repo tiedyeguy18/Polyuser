@@ -139,8 +139,8 @@ class ServerImpl implements Server {
     ws.on("message", this.handleMessage);
   }
 
-  private handleMessage(message: string) {
-    const messageJSON: any = JSON.parse(message);
+  private handleMessage(message: WebSocket.RawData) {
+    const messageJSON: any = JSON.parse(message.toString());
 
     switch (messageJSON.type) {
       case "join":

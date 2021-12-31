@@ -135,11 +135,11 @@ class ServerImpl implements Server {
 
   handleConnection(ws: WebSocket): void {
     console.log("CONNECTED");
-    console.log(this.handleMessage);
     ws.on("message", (event) => (this.handleMessage(event)));
   }
 
   private handleMessage(message: WebSocket.RawData) {
+    console.log(`RECIEVED ${message.toString()}`)
     const messageJSON: any = JSON.parse(message.toString());
 
     switch (messageJSON.type) {
@@ -156,7 +156,6 @@ class ServerImpl implements Server {
     const joinedRoom: Room | undefined = this.getRoom(messageJSON.roomID);
     const client: Client = new ClientImpl(this.highestClientID, messageJSON.clientName);
 
-    console.log(this.wss.clients);
     if (joinedRoom) {
       joinedRoom.addClient(client);
     } else {
@@ -167,7 +166,6 @@ class ServerImpl implements Server {
 }
 
 const wss = new WebSocket.Server({port: 8999});
-console.log(wss);
 
 const server: Server = new ServerImpl(wss);
 

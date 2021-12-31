@@ -5,7 +5,7 @@ function JoinRoom(roomId:string, clientName: string) {
     alert("Something went wrong with this page")
     console.log("ERROR: Could not find game container on page")
   }
-  let client = new Client(roomId, clientName, "ws://10.0.0.129:8999") //);"ws://65.96.171.239:8999"
+  let client = new Client(roomId, clientName, "ws://127.0.0.1:8999") //);"ws://65.96.171.239:8999"
   let game = new Game(game_container, client);
   game.start();
 }

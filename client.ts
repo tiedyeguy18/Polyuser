@@ -3,18 +3,21 @@
  */
 class Client {
     socket: WebSocket;
+    // objects : GameObject[];
 
     /**
      * Connects to a multiplayer room
-     * @param room The name of the room to join
-     * @param client_name The name of the client joining (should be unique per room)
+     * @param roomID The name of the room to join
+     * @param clientName The name of the client joining (should be unique per room)
+     * @param address The address of the websocket
      * @returns True if the connection was essential 
      */
-    constructor(roomId: string, clientName: string, address: string) {
+    constructor(roomID: string, clientName: string, address: string) {
         this.socket = new WebSocket(address);
+        // this.objects = [];
         this.socket.onopen = function (e) {
             console.log("Connection established");
-            this.send(JSON.stringify({ room: roomId, client: clientName, type: "join" }));
+            this.send(JSON.stringify({ roomID, clientName, type: "join" }));
 
             this.onmessage = function (event) {
                 console.log(event.data)
@@ -27,12 +30,17 @@ class Client {
                         break;
                     case "join":
                         alert("JOIN EVENT ACKNOWLEDGED")
+                        console.log(event.data)
                         break;
                     default:
                         throw new Error("Socket Failed to Connect");
                 }
             };
         };
+
+        this.socket.onerror = function (event) {
+            console.log('WEBSOCKET ERROR: ${event}');
+        }
 
         this.socket.onclose = function (event) {
             if (event.wasClean) {
@@ -41,5 +49,9 @@ class Client {
                 console.log('Connection died')
             }
         };
+    }
+
+    send_event(message : string) : void {
+        this.socket.send(JSON.stringify({message, type: "input"}))
     }
 }

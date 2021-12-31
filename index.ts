@@ -87,7 +87,7 @@ class RoomImpl implements Room {
   removeClient(client: Client): boolean {
     const contains: boolean = this.clients.includes(client);
     const clientsWithout: Client[] = this.clients.filter(c => c !== client);
-    if (clientsWithout == []) {
+    if (clientsWithout === []) {
       throw new Error("Cannot have a room with no clients in it. Stop operation or remove room.");
     } else {
       this.clients = clientsWithout;
@@ -103,10 +103,10 @@ class RoomImpl implements Room {
 class ServerImpl implements Server {
   private rooms: Room[] = [];
   private highestClientID: number = 0;
-  private readonly ws: WebSocket.Server;
+  private readonly wss: WebSocket.Server;
 
-  constructor(ws: WebSocket.Server) {
-    this.ws = ws;
+  constructor(wss: WebSocket.Server) {
+    this.wss = wss;
   }
 
   createRoom(roomID: number, client: Client): void {
@@ -117,7 +117,7 @@ class ServerImpl implements Server {
   removeRoom(roomID: number): boolean {
     const contains: boolean = this.rooms.map(r => r.getID()).includes(roomID);
     const roomsWithout: Room[] = this.rooms.filter(r => r.getID() !== roomID);
-    if (roomsWithout == []) {
+    if (roomsWithout === []) {
       throw new Error("Cannot have a room with no clients in it. Stop operation or remove room.");
     } else {
       this.rooms = roomsWithout;
@@ -126,7 +126,7 @@ class ServerImpl implements Server {
   }
 
   getRoom(id: number): Room | undefined {
-    return this.rooms.filter(r => r.getID() == id).pop();
+    return this.rooms.filter(r => r.getID() === id).pop();
   }
 
   getRooms(): Room[] {
@@ -134,11 +134,13 @@ class ServerImpl implements Server {
   }
 
   handleConnection(ws: WebSocket): void {
-    ws.on("message", this.handleMessage);
+    console.log("CONNECTED");
+    console.log(this.handleMessage);
+    ws.on("message", (event) => (this.handleMessage(event)));
   }
 
-  private handleMessage(message: string) {
-    const messageJSON: any = JSON.parse(message);
+  private handleMessage(message: WebSocket.RawData) {
+    const messageJSON: any = JSON.parse(message.toString());
 
     switch (messageJSON.type) {
       case "join":
@@ -154,7 +156,7 @@ class ServerImpl implements Server {
     const joinedRoom: Room | undefined = this.getRoom(messageJSON.roomID);
     const client: Client = new ClientImpl(this.highestClientID, messageJSON.clientName);
 
-    console.log(this.ws.clients);
+    console.log(this.wss.clients);
     if (joinedRoom) {
       joinedRoom.addClient(client);
     } else {
@@ -165,7 +167,8 @@ class ServerImpl implements Server {
 }
 
 const wss = new WebSocket.Server({port: 8999});
+console.log(wss);
 
 const server: Server = new ServerImpl(wss);
 
-wss.on('connection', server.handleConnection);
+wss.on('connection', (ws) => server.handleConnection(ws));

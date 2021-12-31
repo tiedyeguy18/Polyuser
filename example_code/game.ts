@@ -19,7 +19,7 @@ class Game {
     }
 
     public handle_input(input : string) : void {
-      if (input == "Hi there, I am a WebSocket server") { // TODO: This is temp, obviously
+      if (input == "start") { // TODO: This is temp, obviously
         this.game_container.innerHTML = "";
         this.game_container.appendChild(this.drawing_surface)
       }
@@ -34,5 +34,6 @@ class Game {
     public start() : void {
         let loop = true;
         console.log('running')
+        this.handle_input('start')
     }
 }

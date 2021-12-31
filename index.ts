@@ -136,7 +136,7 @@ class ServerImpl implements Server {
   handleConnection(ws: WebSocket): void {
     console.log("CONNECTED");
     console.log(this.handleMessage);
-    ws.on("message", this.handleMessage);
+    ws.on("message", (event) => (this.handleMessage(event)));
   }
 
   private handleMessage(message: WebSocket.RawData) {
@@ -171,4 +171,4 @@ console.log(wss);
 
 const server: Server = new ServerImpl(wss);
 
-wss.on('connection', server.handleConnection);
+wss.on('connection', (ws) => server.handleConnection(ws));

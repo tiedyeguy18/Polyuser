@@ -3,7 +3,8 @@ function initialize(): void {
   form.onsubmit = () => {
     const formData = new FormData(form);
     const roomId  = formData.get('room') as string;
-    window.location.href = "polyuser.html?room=" + roomId
+    const username  = formData.get('username') as string;
+    window.location.href = `polyuser.html?room=${roomId}&clientName=${username}`
     return false;
   }
 }

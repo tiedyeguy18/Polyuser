@@ -39,7 +39,8 @@ class Client {
         };
 
         this.socket.onerror = function (event) {
-            console.log('WEBSOCKET ERROR: ${event}');
+            console.log(`WEBSOCKET ERROR: `);
+            console.log(event)
         }
 
         this.socket.onclose = function (event) {

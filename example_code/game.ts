@@ -34,6 +34,6 @@ class Game {
     public start() : void {
         let loop = true;
         console.log('running')
-        this.handle_input('start')
+        // this.handle_input('start')
     }
 }
